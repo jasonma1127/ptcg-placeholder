@@ -1,11 +1,27 @@
 [project]
-name = "pokemon-card-generator"
-version = "0.1.0"
-description = "Generate printable Pokemon cards from PokeAPI"
+name = "ptcg-placeholder"
+version = "1.0.0"
+description = "📁 Generate placeholder cards for Pokemon card collectors to organize their binders while collecting"
 readme = "README.md"
 authors = [
-    { name = "User", email = "user@example.com" }
+    { name = "jasonma1127", email = "jasonma1127@users.noreply.github.com" }
 ]
+license = { text = "MIT" }
+keywords = ["pokemon", "cards", "placeholder", "collection", "binder", "organizer", "ptcg"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Utilities",
+]
+urls = { homepage = "https://github.com/jasonma1127/ptcg-placeholder", repository = "https://github.com/jasonma1127/ptcg-placeholder" }
 requires-python = ">=3.9"
 dependencies = [
     "requests>=2.31.0",
@@ -26,7 +42,8 @@ dev = [
 ]
 
 [project.scripts]
-pokemon-cards = "main:main"
+ptcg-placeholder = "main:main"
+ptcg = "main:main"
 
 [build-system]
 requires = ["hatchling"]

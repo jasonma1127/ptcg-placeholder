@@ -1,17 +1,18 @@
-# 🎮 Pokemon Card Generator
+# 🎴 PTCG Placeholder
 
-A simple and easy-to-use Pokemon card generator that fetches data from PokeAPI to create high-quality printable Pokemon cards.
+A tool for Pokemon card collectors to generate placeholder cards for organizing their binders while building their collection.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## ✨ Key Features
 
-- 🔍 **Flexible Search**: Search by generation or Pokemon ID
-- 🌏 **Multi-language Support**: English, Traditional Chinese, Japanese (can be combined)
-- 🎨 **High-Quality Design**: 300 DPI, standard trading card size (63×88mm)
-- 📄 **PDF Output**: A4 pages, 9 cards per page, print-ready
-- ⚡ **Smart Caching**: Automatically downloads and caches Pokemon images
+- 🔍 **Flexible Search**: Find cards by generation or Pokemon ID for your collection
+- 🗂️ **Binder Organization**: Create placeholders to keep your card binder organized
+- 🌏 **Multi-language Support**: English, Traditional Chinese, Japanese (perfect for international collecting)
+- 🎨 **Authentic Design**: Standard trading card size (63×88mm) to fit perfectly in binders
+- 📄 **Print-Ready**: A4 pages with 9 cards each, optimized for home printing
+- ⚡ **Collection Planning**: Visual reference while hunting for specific cards
 
 ## 🚀 Quick Start
 
@@ -22,7 +23,7 @@ A simple and easy-to-use Pokemon card generator that fetches data from PokeAPI t
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # 2. Clone the project
-git clone <your-repository-url>
+git clone https://github.com/jasonma1127/ptcg-placeholder.git
 cd ptcg-placeholder
 
 # 3. Install dependencies
@@ -96,4 +97,4 @@ Issues and Pull Requests are welcome!
 
 ---
 
-**Start creating your Pokemon cards!** 🎴✨# Contributors: jasonma1127
+**Start organizing your Pokemon card collection!** 🎴✨
