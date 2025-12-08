@@ -96,4 +96,4 @@ Issues and Pull Requests are welcome!
 
 ---
 
-**Start creating your Pokemon cards!** 🎴✨
+**Start creating your Pokemon cards!** 🎴✨# Contributors: jasonma1127
