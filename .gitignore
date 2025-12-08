@@ -1,0 +1,45 @@
+# Python 生成檔案
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# 虛擬環境
+.venv
+venv/
+
+# 專案特定檔案
+# 應用程式日誌
+*.log
+
+# 資料目錄
+data/output/
+data/cache/
+data/pokemon_images/
+
+# 開發和測試檔案
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE 和編輯器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 作業系統檔案
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 暫存檔案
+*.tmp
+*.temp
+*~
