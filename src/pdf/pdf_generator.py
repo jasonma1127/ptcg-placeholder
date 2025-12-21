@@ -40,11 +40,15 @@ class CardFlowable(Flowable):
             # Create white background for transparency
             rgb_image = Image.new('RGB', self.image.size, (255, 255, 255))
             rgb_image.paste(self.image, mask=self.image.split()[-1])  # Use alpha as mask
+            # Preserve DPI information from original image
+            if 'dpi' in self.image.info:
+                rgb_image.info['dpi'] = self.image.info['dpi']
             image_to_draw = rgb_image
         else:
             image_to_draw = self.image.convert('RGB')
 
         # Draw the image with higher quality settings
+        # Explicitly specify dimensions to ensure correct print size
         self.canv.drawInlineImage(
             image_to_draw, 0, 0, width=self.width, height=self.height
         )
@@ -217,6 +221,9 @@ class PDFGenerator:
 
     def _optimize_card_for_print(self, card: Image.Image) -> Image.Image:
         """Optimize card image for print quality."""
+        # Preserve DPI information
+        dpi_info = card.info.get('dpi', None)
+
         # Ensure RGB mode for printing
         if card.mode == 'RGBA':
             # Create white background
@@ -228,6 +235,10 @@ class PDFGenerator:
             card = background
         elif card.mode != 'RGB':
             card = card.convert('RGB')
+
+        # Restore DPI information after conversion
+        if dpi_info:
+            card.info['dpi'] = dpi_info
 
         return card
 

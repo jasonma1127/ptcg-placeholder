@@ -65,6 +65,9 @@ class CardDesigner:
         """Create the base card with background."""
         card = Image.new('RGBA', (self.card_width, self.card_height), self.background_color)
 
+        # Set DPI information for correct print size
+        card.info['dpi'] = (settings.card.dpi, settings.card.dpi)
+
         # Add subtle gradient background
         card = self._add_gradient_background(card)
 
@@ -205,13 +208,28 @@ class CardDesigner:
         if not names:
             return card
 
-        # Define text area
-        text_y = self.card_height - self.text_height + settings.card.text_padding_mm
+        # Define text area - adjust position based on number of languages
+        if len(names) > 1:
+            # Multi-language: move text area higher to avoid overlap with bottom
+            base_font_size = 36
+            line_spacing = 10  # Increased spacing for better readability
+            total_languages = len(names)
+            needed_height = (base_font_size * total_languages) + (line_spacing * (total_languages - 1)) + 30  # +30 for padding
+
+            # Move text area significantly higher to ensure no overlap with bottom
+            text_y = self.card_height - needed_height - 25  # 25px margin from bottom
+            text_height = needed_height
+        else:
+            # Single language: move higher than original position
+            original_text_y = self.card_height - self.text_height + settings.card.text_padding_mm
+            text_y = original_text_y - 20  # Move 20px higher than original
+            text_height = self.text_height - settings.card.text_padding_mm
+
         text_area = {
             'x': settings.card.text_padding_mm,
             'y': text_y,
             'width': self.card_width - (2 * settings.card.text_padding_mm),
-            'height': self.text_height - settings.card.text_padding_mm
+            'height': text_height
         }
 
         # Format multi-language text
@@ -231,12 +249,8 @@ class CardDesigner:
             base_font_size = 36  # Smaller for multi-language
             line_spacing = 8  # Spacing between language lines
 
-            # Calculate total height needed
-            total_languages = len(names)
-            total_text_height = (base_font_size * total_languages) + (line_spacing * (total_languages - 1))
-
-            # Calculate starting Y position to center the text block
-            start_y = text_area['y'] + (text_area['height'] - total_text_height) // 2
+            # Start from the top of the text area (already positioned correctly)
+            start_y = text_area['y'] + 10  # Small top padding
 
             # Render each language line
             for i, (name, lang) in enumerate(names):

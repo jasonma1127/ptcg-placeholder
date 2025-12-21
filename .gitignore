@@ -43,3 +43,6 @@ Thumbs.db
 *.tmp
 *.temp
 *~
+test_card_*.png
+test_card_*.pdf
+test_dpi_fix.py
