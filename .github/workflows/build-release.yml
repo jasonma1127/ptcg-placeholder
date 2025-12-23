@@ -19,17 +19,19 @@ jobs:
             platform: Windows
             output_name: pokemon-card-generator-windows.exe
             build_command: |
+              pip install uv
+              uv pip install --system -e .
               pip install pyinstaller
-              pip install -r requirements.txt
-              pyinstaller --onefile --name pokemon-card-generator --icon assets/icon.ico main.py
+              pyinstaller --onefile --name pokemon-card-generator main.py
 
           # macOS (Intel)
           - os: macos-13
             platform: macOS-Intel
             output_name: pokemon-card-generator-macos-intel
             build_command: |
+              pip install uv
+              uv pip install --system -e .
               pip install pyinstaller
-              pip install -r requirements.txt
               pyinstaller --onefile --name pokemon-card-generator main.py
 
           # macOS (Apple Silicon)
@@ -37,8 +39,9 @@ jobs:
             platform: macOS-ARM
             output_name: pokemon-card-generator-macos-arm
             build_command: |
+              pip install uv
+              uv pip install --system -e .
               pip install pyinstaller
-              pip install -r requirements.txt
               pyinstaller --onefile --name pokemon-card-generator main.py
 
           # Linux
@@ -46,8 +49,9 @@ jobs:
             platform: Linux
             output_name: pokemon-card-generator-linux
             build_command: |
+              pip install uv
+              uv pip install --system -e .
               pip install pyinstaller
-              pip install -r requirements.txt
               pyinstaller --onefile --name pokemon-card-generator main.py
 
     steps:
