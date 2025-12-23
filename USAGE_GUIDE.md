@@ -10,14 +10,10 @@
 | Your Computer | Download This |
 |---------------|---------------|
 | Windows PC | `pokemon-card-generator-windows.exe` |
-| Mac (Intel chip) | `pokemon-card-generator-macos-intel` |
-| Mac (M1/M2/M3 chip) | `pokemon-card-generator-macos-arm` |
+| Mac (M1/M2/M3/M4) | `pokemon-card-generator-macos-arm` |
 | Linux | `pokemon-card-generator-linux` |
 
-**Don't know which Mac you have?**
-- Click Apple logo → About This Mac
-- If it says "Apple M1" or "Apple M2" → download ARM version
-- If it shows "Intel" → download Intel version
+**Note for older Intel Mac users:** Please use Option 2 (Run from Source) as pre-built Intel executables are no longer provided.
 
 ### Step 2: First Time Setup
 

@@ -24,16 +24,6 @@ jobs:
               pip install pyinstaller
               pyinstaller --onefile --name pokemon-card-generator main.py
 
-          # macOS (Intel)
-          - os: macos-13
-            platform: macOS-Intel
-            output_name: pokemon-card-generator-macos-intel
-            build_command: |
-              pip install uv
-              uv pip install --system -e .
-              pip install pyinstaller
-              pyinstaller --onefile --name pokemon-card-generator main.py
-
           # macOS (Apple Silicon)
           - os: macos-latest
             platform: macOS-ARM
@@ -119,8 +109,7 @@ jobs:
             | Platform | File | Size |
             |----------|------|------|
             | 🪟 Windows | `pokemon-card-generator-windows.exe` | ~60 MB |
-            | 🍎 macOS (Intel) | `pokemon-card-generator-macos-intel` | ~55 MB |
-            | 🍎 macOS (Apple Silicon) | `pokemon-card-generator-macos-arm` | ~55 MB |
+            | 🍎 macOS | `pokemon-card-generator-macos-arm` | ~55 MB |
             | 🐧 Linux | `pokemon-card-generator-linux` | ~58 MB |
 
             ## 🚀 Quick Start
@@ -131,10 +120,10 @@ jobs:
             3. Follow the prompts!
 
             ### macOS
-            1. Download the appropriate version (Intel or ARM)
+            1. Download `pokemon-card-generator-macos-arm`
             2. Open Terminal
-            3. Run: `chmod +x pokemon-card-generator-macos-*`
-            4. Run: `./pokemon-card-generator-macos-*`
+            3. Run: `chmod +x pokemon-card-generator-macos-arm`
+            4. Run: `./pokemon-card-generator-macos-arm`
 
             ### Linux
             1. Download `pokemon-card-generator-linux`
