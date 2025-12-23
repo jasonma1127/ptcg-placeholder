@@ -1,0 +1,170 @@
+name: Build and Release Executables
+
+on:
+  push:
+    tags:
+      - 'v*'  # 當推送 v1.0.0 這樣的 tag 時觸發
+  workflow_dispatch:  # 也可以手動觸發
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          # Windows
+          - os: windows-latest
+            platform: Windows
+            output_name: pokemon-card-generator-windows.exe
+            build_command: |
+              pip install pyinstaller
+              pip install -r requirements.txt
+              pyinstaller --onefile --name pokemon-card-generator --icon assets/icon.ico main.py
+
+          # macOS (Intel)
+          - os: macos-13
+            platform: macOS-Intel
+            output_name: pokemon-card-generator-macos-intel
+            build_command: |
+              pip install pyinstaller
+              pip install -r requirements.txt
+              pyinstaller --onefile --name pokemon-card-generator main.py
+
+          # macOS (Apple Silicon)
+          - os: macos-latest
+            platform: macOS-ARM
+            output_name: pokemon-card-generator-macos-arm
+            build_command: |
+              pip install pyinstaller
+              pip install -r requirements.txt
+              pyinstaller --onefile --name pokemon-card-generator main.py
+
+          # Linux
+          - os: ubuntu-latest
+            platform: Linux
+            output_name: pokemon-card-generator-linux
+            build_command: |
+              pip install pyinstaller
+              pip install -r requirements.txt
+              pyinstaller --onefile --name pokemon-card-generator main.py
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build executable
+        run: ${{ matrix.build_command }}
+
+      - name: Rename output (Windows)
+        if: matrix.platform == 'Windows'
+        run: |
+          Move-Item -Path "dist\pokemon-card-generator.exe" -Destination "dist\${{ matrix.output_name }}"
+
+      - name: Rename output (Unix)
+        if: matrix.platform != 'Windows'
+        run: |
+          mv dist/pokemon-card-generator "dist/${{ matrix.output_name }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output_name }}
+          path: dist/${{ matrix.output_name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: List artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          ls -R artifacts/
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Pokemon Card Generator ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            # 🎴 Pokemon Card Generator ${{ steps.get_version.outputs.VERSION }}
+
+            ## 📥 Download
+
+            Choose the version for your operating system:
+
+            | Platform | File | Size |
+            |----------|------|------|
+            | 🪟 Windows | `pokemon-card-generator-windows.exe` | ~60 MB |
+            | 🍎 macOS (Intel) | `pokemon-card-generator-macos-intel` | ~55 MB |
+            | 🍎 macOS (Apple Silicon) | `pokemon-card-generator-macos-arm` | ~55 MB |
+            | 🐧 Linux | `pokemon-card-generator-linux` | ~58 MB |
+
+            ## 🚀 Quick Start
+
+            ### Windows
+            1. Download `pokemon-card-generator-windows.exe`
+            2. Double-click to run
+            3. Follow the prompts!
+
+            ### macOS
+            1. Download the appropriate version (Intel or ARM)
+            2. Open Terminal
+            3. Run: `chmod +x pokemon-card-generator-macos-*`
+            4. Run: `./pokemon-card-generator-macos-*`
+
+            ### Linux
+            1. Download `pokemon-card-generator-linux`
+            2. Run: `chmod +x pokemon-card-generator-linux`
+            3. Run: `./pokemon-card-generator-linux`
+
+            ## ✨ What's New
+
+            - High-quality 300 DPI card generation
+            - Multi-language support (English, Japanese, Chinese)
+            - A4-optimized PDF output (9 cards per page)
+            - Improved DPI metadata handling
+
+            ## ⚖️ Legal Notice
+
+            This is a fan-made tool for personal collection management only.
+
+            Pokemon and all related characters are trademarks of The Pokemon Company, Nintendo, and Game Freak. This project is not affiliated with or endorsed by these companies.
+
+            **Do not use for commercial purposes.**
+
+            ## 💝 Support
+
+            If you find this tool useful:
+            - ⭐ Star this repository
+            - 🐛 Report bugs in [Issues](https://github.com/${{ github.repository }}/issues)
+            - 💬 Share with fellow Pokemon fans!
+
+            ---
+
+            Full changelog: https://github.com/${{ github.repository }}/commits/${{ steps.get_version.outputs.VERSION }}
+          files: |
+            artifacts/**/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
