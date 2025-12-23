@@ -6,6 +6,9 @@ on:
       - 'v*'  # 當推送 v1.0.0 這樣的 tag 時觸發
   workflow_dispatch:  # 也可以手動觸發
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build ${{ matrix.platform }}
