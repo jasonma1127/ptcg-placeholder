@@ -23,12 +23,29 @@
 3. That's it!
 
 #### macOS
+
+**Important:** macOS will show a security warning because this app is not signed with an Apple Developer certificate (costs $99/year). This is normal for free open-source software.
+
+**Method 1: Right-click to Open (Easiest)**
+1. Right-click (or Control-click) the downloaded file
+2. Select "Open" from the menu
+3. Click "Open" in the security dialog that appears
+4. You only need to do this once!
+
+**Method 2: Remove Quarantine Flag**
 1. Open Terminal (Applications → Utilities → Terminal)
-2. Drag the downloaded file into Terminal window
-3. Type `chmod +x ` (with a space at the end)
-4. Drag the file again into Terminal
-5. Press Enter
-6. Now you can double-click the file to run it
+2. Run this command (replace path if needed):
+   ```bash
+   xattr -d com.apple.quarantine ~/Downloads/pokemon-card-generator-macos-arm
+   chmod +x ~/Downloads/pokemon-card-generator-macos-arm
+   ~/Downloads/pokemon-card-generator-macos-arm
+   ```
+
+**Method 3: System Settings**
+1. Try to open the file (it will be blocked)
+2. Open System Settings → Privacy & Security
+3. Scroll down to see "pokemon-card-generator-macos-arm was blocked"
+4. Click "Open Anyway"
 
 #### Linux
 ```bash
@@ -116,17 +133,15 @@ The PDF will be saved in a folder called `data/output/` next to the program.
 
 ## Troubleshooting
 
-### "The program won't open" (macOS)
+### "The program won't open" / "Malicious software" warning (macOS)
 
-**Solution:**
-1. Right-click the file
-2. Select "Open"
-3. Click "Open" in the security dialog
+This is macOS Gatekeeper blocking unsigned apps. **This is normal and safe** - the app is open source and you can review the code.
 
-Or disable Gatekeeper temporarily:
-```bash
-sudo spctl --master-disable
-```
+**Quick Fix:**
+1. Right-click the file → "Open"
+2. Click "Open" in the dialog
+
+See "Step 2: First Time Setup → macOS" above for detailed instructions with 3 different methods.
 
 ### "Missing python39.dll" (Windows)
 

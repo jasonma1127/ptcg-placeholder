@@ -23,10 +23,12 @@ A tool for Pokemon card collectors to generate placeholder cards for organizing 
 1. Go to [Releases](https://github.com/jasonma1127/ptcg-placeholder/releases/latest)
 2. Download the file for your operating system:
    - 🪟 Windows: `pokemon-card-generator-windows.exe`
-   - 🍎 macOS: `pokemon-card-generator-macos-arm`
+   - 🍎 macOS: `pokemon-card-generator-macos-arm` (see note below)
    - 🐧 Linux: `pokemon-card-generator-linux`
 3. Double-click to run (macOS/Linux: may need to run `chmod +x` first)
 4. Follow the on-screen prompts!
+
+**macOS Users:** You may see a security warning. Right-click the file → "Open" → "Open" to bypass. See [USAGE_GUIDE.md](USAGE_GUIDE.md) for details.
 
 ### Option 2: Run from Source (For Developers)
 
