@@ -217,7 +217,8 @@ class PokemonCardGenerator:
         else:
             filename = f"pokemon_cards_custom_{timestamp}.pdf"
 
-        output_path = Path("data/output") / filename
+        # Ask user where to save the PDF
+        output_path = self._get_output_path(filename)
 
         with self.progress:
             self.progress.start_progress("Creating PDF...")
@@ -237,6 +238,57 @@ class PokemonCardGenerator:
             except Exception as e:
                 self.progress.stop_progress()
                 raise
+
+    def _get_output_path(self, filename: str) -> Path:
+        """Ask user where to save the PDF."""
+        from rich.panel import Panel
+        from rich.prompt import Prompt
+
+        # Show default locations
+        default_locations = {
+            "1": ("Desktop", Path.home() / "Desktop"),
+            "2": ("Downloads", Path.home() / "Downloads"),
+            "3": ("Documents", Path.home() / "Documents"),
+            "4": ("Current directory", Path.cwd()),
+            "5": ("Custom path", None)
+        }
+
+        # Display options
+        options_text = "\n".join([f"  {key}. {name}" for key, (name, _) in default_locations.items()])
+
+        self.console.print(Panel(
+            f"[bold cyan]Where would you like to save the PDF?[/bold cyan]\n\n{options_text}\n\n"
+            f"[dim]Filename: {filename}[/dim]",
+            title="📁 Choose Output Location",
+            border_style="cyan"
+        ))
+
+        choice = Prompt.ask(
+            "Select location",
+            choices=list(default_locations.keys()),
+            default="2"
+        )
+
+        if choice == "5":
+            # Custom path
+            custom_path = Prompt.ask("Enter full path (folder or full file path)")
+            custom_path = Path(custom_path).expanduser()
+
+            # Check if it's a directory or file path
+            if custom_path.suffix == ".pdf":
+                output_path = custom_path
+            else:
+                # It's a directory
+                output_path = custom_path / filename
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Use default location
+            _, directory = default_locations[choice]
+            directory.mkdir(parents=True, exist_ok=True)
+            output_path = directory / filename
+
+        self.console.print(f"[green]✓[/green] Will save to: [cyan]{output_path}[/cyan]\n")
+        return output_path
 
     def _show_generation_summary(self, pdf_result, session_data: dict):
         """Show generation summary."""
