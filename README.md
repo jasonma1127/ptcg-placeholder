@@ -107,7 +107,11 @@ This project is for **educational and personal use only**. Pokemon-related conte
 
 ## 🤝 Contributing
 
-Issues and Pull Requests are welcome!
+**Feature Requests & Bug Reports:**
+- Please open an [Issue](https://github.com/jasonma1127/ptcg-placeholder/issues)
+- Describe your use case or the problem you're facing
+
+**Note:** This is a personal project maintained by a single developer. Pull requests are not currently accepted, but all feature requests and bug reports are welcome via Issues!
 
 ---
 
