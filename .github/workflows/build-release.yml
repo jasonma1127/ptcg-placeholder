@@ -98,28 +98,47 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Generate changelog with git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip all
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Prepare release body
+        id: release_body
+        run: |
+          cat > RELEASE_BODY.md << 'EOF'
+          ## 📥 Downloads
+
+          | Platform | File |
+          |----------|------|
+          | 🪟 Windows | `pokemon-card-generator-windows.exe` |
+          | 🍎 macOS (Apple Silicon) | `pokemon-card-generator-macos-arm` |
+          | 🐧 Linux | `pokemon-card-generator-linux` |
+
+          ## 📝 What's Changed
+
+          EOF
+          cat CHANGELOG.md >> RELEASE_BODY.md
+          cat >> RELEASE_BODY.md << 'EOF'
+
+          ## 📖 Documentation
+
+          - **[README](https://github.com/${{ github.repository }}#readme)** - Installation and usage guide
+          - **[Contributing Guide](https://github.com/${{ github.repository }}/blob/master/CONTRIBUTING.md)** - For developers
+
+          ---
+
+          **⚠️ Legal Notice**: Fan-made tool for personal use only. Not affiliated with Nintendo/The Pokemon Company.
+          EOF
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           name: Pokemon Card Generator ${{ steps.get_version.outputs.VERSION }}
-          body: |
-            ## 📥 Downloads
-
-            | Platform | File |
-            |----------|------|
-            | 🪟 Windows | `pokemon-card-generator-windows.exe` |
-            | 🍎 macOS (Apple Silicon) | `pokemon-card-generator-macos-arm` |
-            | 🐧 Linux | `pokemon-card-generator-linux` |
-
-            ## 📖 Documentation
-
-            - **[README](https://github.com/${{ github.repository }}#readme)** - Installation and usage guide
-            - **[Contributing Guide](https://github.com/${{ github.repository }}/blob/master/CONTRIBUTING.md)** - For developers
-
-            ---
-
-            **⚠️ Legal Notice**: Fan-made tool for personal use only. Not affiliated with Nintendo/The Pokemon Company.
-          generate_release_notes: true
+          body_path: RELEASE_BODY.md
           files: |
             artifacts/**/*
           draft: false
