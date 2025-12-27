@@ -14,7 +14,7 @@ jobs:
     uses: ./.github/workflows/test.yml  # Reuse the test workflow
 
   build:
-    name: Build ${{ matrix.platform }}
+    name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: test  # Only build if tests pass
 
@@ -23,33 +23,15 @@ jobs:
         include:
           # Windows
           - os: windows-latest
-            platform: Windows
             output_name: pokemon-card-generator-windows.exe
-            install_uv: pip install uv
-            build_command: |
-              uv sync
-              uv run pip install pyinstaller
-              uv run pyinstaller --onefile --name pokemon-card-generator main.py
 
           # macOS (Apple Silicon)
           - os: macos-latest
-            platform: macOS-ARM
             output_name: pokemon-card-generator-macos-arm
-            install_uv: curl -LsSf https://astral.sh/uv/install.sh | sh
-            build_command: |
-              uv sync
-              uv run pip install pyinstaller
-              uv run pyinstaller --onefile --name pokemon-card-generator main.py
 
           # Linux
           - os: ubuntu-latest
-            platform: Linux
             output_name: pokemon-card-generator-linux
-            install_uv: curl -LsSf https://astral.sh/uv/install.sh | sh
-            build_command: |
-              uv sync
-              uv run pip install pyinstaller
-              uv run pyinstaller --onefile --name pokemon-card-generator main.py
 
     steps:
       - name: Checkout code
@@ -60,19 +42,29 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install uv
-        run: ${{ matrix.install_uv }}
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        run: pip install uv
 
-      - name: Build executable
-        run: ${{ matrix.build_command }}
+      - name: Install uv (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies and build
+        run: |
+          uv sync
+          uv run pip install pyinstaller
+          uv run pyinstaller --onefile --name pokemon-card-generator main.py
 
       - name: Rename output (Windows)
-        if: matrix.platform == 'Windows'
+        if: runner.os == 'Windows'
         run: |
           Move-Item -Path "dist\pokemon-card-generator.exe" -Destination "dist\${{ matrix.output_name }}"
 
       - name: Rename output (Unix)
-        if: matrix.platform != 'Windows'
+        if: runner.os != 'Windows'
         run: |
           mv dist/pokemon-card-generator "dist/${{ matrix.output_name }}"
 
