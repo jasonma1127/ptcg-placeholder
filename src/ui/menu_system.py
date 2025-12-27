@@ -11,7 +11,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 from rich.columns import Columns
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
 
 from src.models import PokemonData, SearchResult
 from src.utils.error_handler import ValidationError, log_error
@@ -343,29 +343,51 @@ class ProgressReporter:
     def __init__(self, console: Console = None):
         self.console = console or Console()
         self.progress: Optional[Progress] = None
+        self.task_id = None
+        self.use_bar = False
 
-    def start_progress(self, description: str) -> None:
+    def start_progress(self, description: str, total: Optional[int] = None) -> None:
         """Start a progress indicator."""
-        self.progress = Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            transient=True,
-            console=self.console
-        )
-        self.progress.start()
-        self.progress.add_task(description)
+        self.use_bar = total is not None and total > 0
 
-    def update_progress(self, description: str) -> None:
-        """Update progress description."""
-        if self.progress:
-            for task in self.progress.tasks:
-                task.description = description
+        if self.use_bar:
+            # Use progress bar for countable tasks
+            self.progress = Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(),
+                console=self.console
+            )
+            self.progress.start()
+            self.task_id = self.progress.add_task(description, total=total)
+        else:
+            # Use spinner for indeterminate tasks
+            self.progress = Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+                console=self.console
+            )
+            self.progress.start()
+            self.task_id = self.progress.add_task(description)
+
+    def update_progress(self, description: str = None, advance: int = 0, completed: int = None) -> None:
+        """Update progress."""
+        if self.progress and self.task_id is not None:
+            if description:
+                self.progress.update(self.task_id, description=description)
+            if advance > 0:
+                self.progress.update(self.task_id, advance=advance)
+            if completed is not None:
+                self.progress.update(self.task_id, completed=completed)
 
     def stop_progress(self) -> None:
         """Stop progress indicator."""
         if self.progress:
             self.progress.stop()
             self.progress = None
+            self.task_id = None
 
     def __enter__(self):
         return self

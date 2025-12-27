@@ -133,27 +133,31 @@ class PokemonCardGenerator:
         """Download Pokemon images."""
         pokemon_ids = [p.pokemon_id for p in pokemon_list]
 
-        with self.progress:
-            self.progress.start_progress(f"Downloading {len(pokemon_ids)} images...")
+        try:
+            # Check which images are already cached
+            cached_count = 0
+            missing_ids = []
 
-            try:
-                # Check which images are already cached
-                cached_count = 0
-                missing_ids = []
+            for pokemon_id in pokemon_ids:
+                if cache_manager.has_pokemon_image(pokemon_id):
+                    cached_count += 1
+                else:
+                    missing_ids.append(pokemon_id)
 
-                for pokemon_id in pokemon_ids:
-                    if cache_manager.has_pokemon_image(pokemon_id):
-                        cached_count += 1
-                    else:
-                        missing_ids.append(pokemon_id)
+            if cached_count > 0:
+                console.print(f"[green]Found {cached_count} cached images[/green]")
 
-                if cached_count > 0:
-                    console.print(f"[green]Found {cached_count} cached images[/green]")
+            if missing_ids:
+                # Start progress bar for downloads
+                with self.progress:
+                    self.progress.start_progress(
+                        f"Downloading {len(missing_ids)} images...",
+                        total=len(missing_ids)
+                    )
 
-                if missing_ids:
                     # Progress callback
                     def update_download_progress(completed, total, pokemon_id):
-                        self.progress.update_progress(f"Downloading images... {completed}/{total} (ID: {pokemon_id})")
+                        self.progress.update_progress(completed=completed)
 
                     # Download missing images asynchronously with high concurrency
                     await download_pokemon_images_async(
@@ -162,18 +166,16 @@ class PokemonCardGenerator:
                         max_concurrent=20
                     )
 
-                # Get all image paths
-                image_paths = {}
-                for pokemon_id in pokemon_ids:
-                    path = cache_manager.get_pokemon_image_path(pokemon_id)
-                    image_paths[pokemon_id] = path
+            # Get all image paths
+            image_paths = {}
+            for pokemon_id in pokemon_ids:
+                path = cache_manager.get_pokemon_image_path(pokemon_id)
+                image_paths[pokemon_id] = path
 
-                self.progress.stop_progress()
-                return image_paths
+            return image_paths
 
-            except Exception as e:
-                self.progress.stop_progress()
-                raise
+        except Exception as e:
+            raise
 
     async def _generate_cards(self, pokemon_list: List[PokemonData],
                             image_paths: Dict[int, Optional[Path]],
