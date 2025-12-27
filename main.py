@@ -52,6 +52,7 @@ class PokemonCardGenerator:
                 return
 
             # Fetch Pokemon data
+            console.print("\n[cyan]Fetching Pokemon data from PokeAPI...[/cyan]")
             pokemon_list = await self._fetch_pokemon_data(session_data)
 
             if not pokemon_list:
@@ -98,36 +99,67 @@ class PokemonCardGenerator:
         """Fetch Pokemon data based on search method."""
         search_method = session_data.get('search_method')
 
-        with self.progress:
-            self.progress.start_progress("Fetching Pokemon data...")
+        try:
+            if search_method == 'generation':
+                generations = session_data['generations']
+                pokemon_list = []
 
-            try:
-                if search_method == 'generation':
-                    generations = session_data['generations']
-                    pokemon_list = []
+                # Calculate total Pokemon to fetch
+                total_pokemon = 0
+                for gen in generations:
+                    start_id, end_id = GENERATION_RANGES[gen]
+                    total_pokemon += end_id - start_id + 1
 
+                with self.progress:
+                    self.progress.start_progress(
+                        f"Fetching {total_pokemon} Pokemon from {len(generations)} generation(s)...",
+                        total=total_pokemon
+                    )
+
+                    fetched_count = 0
                     for gen in generations:
-                        self.progress.update_progress(f"Fetching Generation {gen} Pokemon...")
                         with get_pokemon_api_client() as client:
                             gen_pokemon = client.get_pokemon_by_generation(gen)
                             pokemon_list.extend(gen_pokemon)
+                            fetched_count += len(gen_pokemon)
+                            self.progress.update_progress(completed=fetched_count)
 
-                elif search_method == 'id':
-                    pokemon_ids = session_data['pokemon_ids']
-                    self.progress.update_progress(f"Fetching {len(pokemon_ids)} Pokemon...")
+                    self.progress.stop_progress()
 
-                    # Use async client for batch requests
-                    pokemon_list = await get_pokemon_batch_async(pokemon_ids)
+            elif search_method == 'id':
+                pokemon_ids = session_data['pokemon_ids']
 
-                else:
-                    raise PokemonCardGeneratorError("Name search not implemented yet")
+                with self.progress:
+                    self.progress.start_progress(
+                        f"Fetching {len(pokemon_ids)} Pokemon...",
+                        total=len(pokemon_ids)
+                    )
 
+                    # Use async client for batch requests with progress tracking
+                    from src.api.pokemon_api import AsyncPokemonAPIClient
+                    client = AsyncPokemonAPIClient()
+
+                    # Fetch in batches and update progress
+                    pokemon_list = []
+                    batch_size = 20
+
+                    for i in range(0, len(pokemon_ids), batch_size):
+                        batch_ids = pokemon_ids[i:i + batch_size]
+                        batch_pokemon = await client.get_pokemon_batch(batch_ids)
+                        pokemon_list.extend(batch_pokemon)
+                        self.progress.update_progress(completed=min(i + batch_size, len(pokemon_ids)))
+
+                    self.progress.stop_progress()
+
+            else:
+                raise PokemonCardGeneratorError("Name search not implemented yet")
+
+            return pokemon_list
+
+        except Exception as e:
+            if hasattr(self, 'progress') and self.progress.progress:
                 self.progress.stop_progress()
-                return pokemon_list
-
-            except Exception as e:
-                self.progress.stop_progress()
-                raise
+            raise
 
     async def _download_images(self, pokemon_list: List[PokemonData]) -> Dict[int, Optional[Path]]:
         """Download Pokemon images."""
@@ -145,9 +177,10 @@ class PokemonCardGenerator:
                     missing_ids.append(pokemon_id)
 
             if cached_count > 0:
-                console.print(f"[green]Found {cached_count} cached images[/green]")
+                console.print(f"[green]✓ Found {cached_count}/{len(pokemon_ids)} cached images[/green]")
 
             if missing_ids:
+                console.print(f"[yellow]→ Need to download {len(missing_ids)} images[/yellow]")
                 # Start progress bar for downloads
                 with self.progress:
                     self.progress.start_progress(
