@@ -151,9 +151,16 @@ class PokemonCardGenerator:
                     console.print(f"[green]Found {cached_count} cached images[/green]")
 
                 if missing_ids:
-                    self.progress.update_progress(f"Downloading {len(missing_ids)} new images...")
-                    # Download missing images asynchronously
-                    await download_pokemon_images_async(missing_ids)
+                    # Progress callback
+                    def update_download_progress(completed, total, pokemon_id):
+                        self.progress.update_progress(f"Downloading images... {completed}/{total} (ID: {pokemon_id})")
+
+                    # Download missing images asynchronously with high concurrency
+                    await download_pokemon_images_async(
+                        missing_ids,
+                        progress_callback=update_download_progress,
+                        max_concurrent=20
+                    )
 
                 # Get all image paths
                 image_paths = {}

@@ -196,11 +196,14 @@ class ImageDownloader:
 class AsyncImageDownloader:
     """Async image downloader for batch operations."""
 
-    def __init__(self, max_concurrent: int = 5):
+    def __init__(self, max_concurrent: int = 20, progress_callback=None):
         self.timeout = settings.api.timeout_seconds
         self.max_retries = settings.api.max_retries
         self.max_concurrent = max_concurrent
         self._semaphore = asyncio.Semaphore(max_concurrent)
+        self.progress_callback = progress_callback
+        self._completed = 0
+        self._total = 0
 
     async def download_image_async(self, session: aiohttp.ClientSession, url: str, pokemon_id: int, retries: int = 0) -> bytes:
         """Download image asynchronously."""
@@ -240,6 +243,9 @@ class AsyncImageDownloader:
 
     async def get_pokemon_images_batch_async(self, pokemon_ids: List[int], force_download: bool = False) -> Dict[int, Optional[Path]]:
         """Download multiple Pokemon images concurrently."""
+        self._total = len(pokemon_ids)
+        self._completed = 0
+
         async with aiohttp.ClientSession() as session:
             tasks = []
 
@@ -275,6 +281,9 @@ class AsyncImageDownloader:
 
     async def _return_cached_path(self, pokemon_id: int, path: Path) -> tuple[int, Path]:
         """Return cached image path."""
+        self._completed += 1
+        if self.progress_callback:
+            self.progress_callback(self._completed, self._total, pokemon_id)
         return pokemon_id, path
 
     async def _download_pokemon_image_async(self, session: aiohttp.ClientSession, pokemon_id: int) -> tuple[int, Optional[Path]]:
@@ -285,10 +294,18 @@ class AsyncImageDownloader:
 
             # Store in cache
             image_path = cache_manager.store_pokemon_image(pokemon_id, image_data)
+
+            self._completed += 1
+            if self.progress_callback:
+                self.progress_callback(self._completed, self._total, pokemon_id)
+
             return pokemon_id, image_path
 
         except ImageDownloadError as e:
             log_error(e, "WARNING")
+            self._completed += 1
+            if self.progress_callback:
+                self.progress_callback(self._completed, self._total, pokemon_id)
             return pokemon_id, None
 
 
@@ -367,9 +384,9 @@ def get_image_downloader() -> ImageDownloader:
     return ImageDownloader()
 
 
-def get_async_image_downloader(max_concurrent: int = 5) -> AsyncImageDownloader:
+def get_async_image_downloader(max_concurrent: int = 20, progress_callback=None) -> AsyncImageDownloader:
     """Get asynchronous image downloader."""
-    return AsyncImageDownloader(max_concurrent)
+    return AsyncImageDownloader(max_concurrent, progress_callback)
 
 
 # Convenience functions
@@ -379,7 +396,7 @@ def download_pokemon_image(pokemon_id: int, force_download: bool = False) -> Opt
         return downloader.get_pokemon_image(pokemon_id, force_download)
 
 
-async def download_pokemon_images_async(pokemon_ids: List[int], force_download: bool = False) -> Dict[int, Optional[Path]]:
+async def download_pokemon_images_async(pokemon_ids: List[int], force_download: bool = False, progress_callback=None, max_concurrent: int = 20) -> Dict[int, Optional[Path]]:
     """Download multiple Pokemon images asynchronously."""
-    downloader = get_async_image_downloader()
+    downloader = get_async_image_downloader(max_concurrent, progress_callback)
     return await downloader.get_pokemon_images_batch_async(pokemon_ids, force_download)
