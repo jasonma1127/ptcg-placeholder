@@ -14,8 +14,7 @@ venv/
 # 應用程式日誌
 *.log
 
-# 資料目錄
-data/output/
+# 資料目錄（現在由使用者選擇輸出位置，不再使用 data/output）
 data/cache/
 data/pokemon_images/
 
@@ -46,3 +45,4 @@ Thumbs.db
 test_card_*.png
 test_card_*.pdf
 test_dpi_fix.py
+data/output/
