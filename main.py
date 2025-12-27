@@ -256,7 +256,7 @@ class PokemonCardGenerator:
         # Display options
         options_text = "\n".join([f"  {key}. {name}" for key, (name, _) in default_locations.items()])
 
-        self.console.print(Panel(
+        console.print(Panel(
             f"[bold cyan]Where would you like to save the PDF?[/bold cyan]\n\n{options_text}\n\n"
             f"[dim]Filename: {filename}[/dim]",
             title="📁 Choose Output Location",
@@ -287,7 +287,7 @@ class PokemonCardGenerator:
             directory.mkdir(parents=True, exist_ok=True)
             output_path = directory / filename
 
-        self.console.print(f"[green]✓[/green] Will save to: [cyan]{output_path}[/cyan]\n")
+        console.print(f"[green]✓[/green] Will save to: [cyan]{output_path}[/cyan]\n")
         return output_path
 
     def _show_generation_summary(self, pdf_result, session_data: dict):
