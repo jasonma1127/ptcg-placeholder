@@ -127,61 +127,23 @@ jobs:
         with:
           name: Pokemon Card Generator ${{ steps.get_version.outputs.VERSION }}
           body: |
-            # 🎴 Pokemon Card Generator ${{ steps.get_version.outputs.VERSION }}
+            ## 📥 Downloads
 
-            ## 📥 Download
+            | Platform | File |
+            |----------|------|
+            | 🪟 Windows | `pokemon-card-generator-windows.exe` |
+            | 🍎 macOS (Apple Silicon) | `pokemon-card-generator-macos-arm` |
+            | 🐧 Linux | `pokemon-card-generator-linux` |
 
-            Choose the version for your operating system:
+            ## 📖 Documentation
 
-            | Platform | File | Size |
-            |----------|------|------|
-            | 🪟 Windows | `pokemon-card-generator-windows.exe` | ~60 MB |
-            | 🍎 macOS | `pokemon-card-generator-macos-arm` | ~55 MB |
-            | 🐧 Linux | `pokemon-card-generator-linux` | ~58 MB |
-
-            ## 🚀 Quick Start
-
-            ### Windows
-            1. Download `pokemon-card-generator-windows.exe`
-            2. Double-click to run
-            3. Follow the prompts!
-
-            ### macOS
-            1. Download `pokemon-card-generator-macos-arm`
-            2. Open Terminal
-            3. Run: `chmod +x pokemon-card-generator-macos-arm`
-            4. Run: `./pokemon-card-generator-macos-arm`
-
-            ### Linux
-            1. Download `pokemon-card-generator-linux`
-            2. Run: `chmod +x pokemon-card-generator-linux`
-            3. Run: `./pokemon-card-generator-linux`
-
-            ## ✨ What's New
-
-            - High-quality 300 DPI card generation
-            - Multi-language support (English, Japanese, Chinese)
-            - A4-optimized PDF output (9 cards per page)
-            - Improved DPI metadata handling
-
-            ## ⚖️ Legal Notice
-
-            This is a fan-made tool for personal collection management only.
-
-            Pokemon and all related characters are trademarks of The Pokemon Company, Nintendo, and Game Freak. This project is not affiliated with or endorsed by these companies.
-
-            **Do not use for commercial purposes.**
-
-            ## 💝 Support
-
-            If you find this tool useful:
-            - ⭐ Star this repository
-            - 🐛 Report bugs in [Issues](https://github.com/${{ github.repository }}/issues)
-            - 💬 Share with fellow Pokemon fans!
+            - **[README](https://github.com/${{ github.repository }}#readme)** - Installation and usage guide
+            - **[Contributing Guide](https://github.com/${{ github.repository }}/blob/master/CONTRIBUTING.md)** - For developers
 
             ---
 
-            Full changelog: https://github.com/${{ github.repository }}/commits/${{ steps.get_version.outputs.VERSION }}
+            **⚠️ Legal Notice**: Fan-made tool for personal use only. Not affiliated with Nintendo/The Pokemon Company.
+          generate_release_notes: true
           files: |
             artifacts/**/*
           draft: false
