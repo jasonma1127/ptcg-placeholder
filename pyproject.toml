@@ -1,6 +1,6 @@
 [project]
 name = "ptcg-placeholder"
-version = "1.2.0"
+version = "1.2.1"
 description = "📁 Generate placeholder cards for Pokemon card collectors to organize their binders while collecting"
 readme = "README.md"
 authors = [
