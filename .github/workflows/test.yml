@@ -1,8 +1,6 @@
 name: Tests
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
   workflow_call:  # Allow this workflow to be called by other workflows
