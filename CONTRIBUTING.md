@@ -149,6 +149,52 @@ Examples:
 - `1.0.1` → `1.1.0`: New feature
 - `1.1.0` → `2.0.0`: Breaking change
 
+### Pre-releases (Beta Testing)
+
+To create a pre-release for testing:
+
+```bash
+git tag v1.0.0-beta.1
+git push origin v1.0.0-beta.1
+```
+
+The workflow will create a pre-release (marked with "Pre-release" label on GitHub).
+
+### Rolling Back a Release
+
+If you need to delete a bad release:
+
+```bash
+# Delete the tag locally
+git tag -d v1.0.0
+
+# Delete the tag on GitHub
+git push origin :refs/tags/v1.0.0
+```
+
+Then manually delete the Release on GitHub:
+1. Go to Releases page
+2. Click the release you want to delete
+3. Click "Delete release"
+
+### Better Commit Messages
+
+To make automated release notes more useful, use conventional commits:
+
+```bash
+git commit -m "feat: add support for Gen 9 Pokemon"
+git commit -m "fix: correct DPI metadata handling"
+git commit -m "docs: update README with new examples"
+```
+
+Common prefixes:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `test:` - Adding or updating tests
+- `refactor:` - Code refactoring
+- `chore:` - Maintenance tasks
+
 ## Project Structure
 
 ```
@@ -277,6 +323,34 @@ uv add --dev package-name
 ```
 
 This will automatically update `pyproject.toml` and `uv.lock`.
+
+### Q: The GitHub Actions build is failing, what should I check?
+
+**Build fails on Windows:**
+- Check if all required files exist
+- Verify Python version compatibility
+
+**Build fails on macOS:**
+- Usually auto-resolved by GitHub Actions
+- Check if dependencies are compatible with macOS
+
+**Build fails on Linux:**
+- Verify all system dependencies are available
+- Check the error logs in GitHub Actions
+
+**Executable is too large (>100MB):**
+- This is normal! PyInstaller bundles Python + all dependencies
+- Typical size: 50-80MB per executable
+
+### Q: Can I test the release workflow without creating a real release?
+
+Yes, use the manual trigger:
+1. Go to GitHub Actions tab
+2. Select "Build and Release Executables"
+3. Click "Run workflow"
+4. Choose your branch
+
+This will build executables but won't create a release (because no tag was pushed).
 
 ## Need Help?
 
