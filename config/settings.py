@@ -46,7 +46,7 @@ class APISettings:
     base_url: str = "https://pokeapi.co/api/v2"
     cache_duration_hours: int = 24
     max_retries: int = 3
-    timeout_seconds: int = 10
+    timeout_seconds: int = 30
     rate_limit_delay: float = 0.1  # Seconds between requests
 
 
