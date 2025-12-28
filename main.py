@@ -40,6 +40,17 @@ class PokemonCardGenerator:
         self.progress = ProgressReporter(console)
         self.card_designer = CardDesigner()
         self.pdf_generator = PDFGenerator()
+        self._show_first_run_message()
+
+    def _show_first_run_message(self):
+        """Show cache location on first run."""
+        if cache_manager.is_first_run():
+            console.print("[cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]")
+            console.print("[cyan]Welcome to Pokemon Card Generator![/cyan]")
+            console.print(f"[dim]Cache: {cache_manager.get_cache_location()}[/dim]")
+            console.print(f"[dim]Images: {cache_manager.get_image_cache_location()}[/dim]")
+            console.print("[dim]Cached data will speed up future runs.[/dim]")
+            console.print("[cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]\n")
 
     async def run(self):
         """Main application workflow."""

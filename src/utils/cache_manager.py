@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from src.models import CacheEntry, APIResponse
 from src.utils.error_handler import CacheError, handle_errors, log_error
+from src.utils.path_utils import get_app_cache_dir, get_app_data_dir
 from config.constants import CACHE_KEYS, MAX_VALUES
 
 
@@ -98,7 +99,9 @@ class MemoryCache:
 class FileCache:
     """File-based cache for persistent storage."""
 
-    def __init__(self, cache_dir: str = "data/cache", max_size_mb: int = 100):
+    def __init__(self, cache_dir: Optional[Path] = None, max_size_mb: int = 100):
+        if cache_dir is None:
+            cache_dir = get_app_cache_dir()
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.max_size_mb = max_size_mb
@@ -224,7 +227,9 @@ class FileCache:
 class ImageCache:
     """Cache for downloaded Pokemon images."""
 
-    def __init__(self, image_dir: str = "data/pokemon_images"):
+    def __init__(self, image_dir: Optional[Path] = None):
+        if image_dir is None:
+            image_dir = get_app_data_dir() / "pokemon_images"
         self.image_dir = Path(image_dir)
         self.image_dir.mkdir(parents=True, exist_ok=True)
         self.official_artwork_dir = self.image_dir / "official_artwork"
@@ -307,10 +312,30 @@ class ImageCache:
 class CacheManager:
     """Main cache manager coordinating all cache layers."""
 
-    def __init__(self, cache_dir: str = "data/cache", memory_size: int = 1000, file_size_mb: int = 100):
+    def __init__(self, cache_dir: Optional[Path] = None, memory_size: int = 1000, file_size_mb: int = 100):
         self.memory_cache = MemoryCache(max_size=memory_size)
         self.file_cache = FileCache(cache_dir=cache_dir, max_size_mb=file_size_mb)
         self.image_cache = ImageCache()
+        self._is_first_run = self._check_first_run()
+
+    def _check_first_run(self) -> bool:
+        """Check if this is the first run by looking for existing cache."""
+        # If both cache directories are empty or just created, it's likely first run
+        api_cache_files = list(self.file_cache.api_cache_dir.glob("*.json"))
+        image_files = list(self.image_cache.official_artwork_dir.glob("*.png"))
+        return len(api_cache_files) == 0 and len(image_files) == 0
+
+    def is_first_run(self) -> bool:
+        """Return whether this is the first run."""
+        return self._is_first_run
+
+    def get_cache_location(self) -> str:
+        """Get the cache directory location for display."""
+        return str(self.file_cache.cache_dir)
+
+    def get_image_cache_location(self) -> str:
+        """Get the image cache directory location for display."""
+        return str(self.image_cache.image_dir)
 
     def get_pokemon_data(self, pokemon_id: int) -> Optional[Any]:
         """Get Pokemon data from cache (memory -> file)."""
