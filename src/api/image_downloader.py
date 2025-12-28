@@ -246,7 +246,14 @@ class AsyncImageDownloader:
         self._total = len(pokemon_ids)
         self._completed = 0
 
-        async with aiohttp.ClientSession() as session:
+        # Create SSL context that doesn't verify certificates for PyInstaller compatibility
+        import ssl
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
             tasks = []
 
             for pokemon_id in pokemon_ids:
