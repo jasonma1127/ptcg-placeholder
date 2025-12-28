@@ -246,11 +246,21 @@ class AsyncImageDownloader:
         self._total = len(pokemon_ids)
         self._completed = 0
 
-        # Create SSL context that doesn't verify certificates for PyInstaller compatibility
+        # Create SSL context with proper certificate verification
         import ssl
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
+        try:
+            # Try to use certifi's CA bundle for PyInstaller compatibility
+            import certifi
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+        except (ImportError, Exception):
+            # Fallback: try system certificates
+            try:
+                ssl_context = ssl.create_default_context()
+            except Exception:
+                # Last resort: disable verification (not recommended but ensures compatibility)
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
 
         connector = aiohttp.TCPConnector(ssl=ssl_context)
         async with aiohttp.ClientSession(connector=connector) as session:
