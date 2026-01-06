@@ -120,9 +120,7 @@ class PokemonCardGenerator:
                     start_id, end_id = GENERATION_RANGES[gen]
                     all_pokemon_ids.extend(range(start_id, end_id + 1))
 
-                # Use async client for batch requests with progress tracking
                 from src.api.pokemon_api import AsyncPokemonAPIClient
-                client = AsyncPokemonAPIClient()
 
                 with self.progress:
                     self.progress.start_progress(
@@ -133,6 +131,7 @@ class PokemonCardGenerator:
                     # Fetch in batches and update progress
                     pokemon_list = []
                     batch_size = 20
+                    client = AsyncPokemonAPIClient()
 
                     for i in range(0, len(all_pokemon_ids), batch_size):
                         batch_ids = all_pokemon_ids[i:i + batch_size]
