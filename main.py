@@ -113,27 +113,32 @@ class PokemonCardGenerator:
         try:
             if search_method == 'generation':
                 generations = session_data['generations']
-                pokemon_list = []
 
-                # Calculate total Pokemon to fetch
-                total_pokemon = 0
+                # Collect all Pokemon IDs from selected generations
+                all_pokemon_ids = []
                 for gen in generations:
                     start_id, end_id = GENERATION_RANGES[gen]
-                    total_pokemon += end_id - start_id + 1
+                    all_pokemon_ids.extend(range(start_id, end_id + 1))
+
+                # Use async client for batch requests with progress tracking
+                from src.api.pokemon_api import AsyncPokemonAPIClient
+                client = AsyncPokemonAPIClient()
 
                 with self.progress:
                     self.progress.start_progress(
-                        f"Fetching {total_pokemon} Pokemon from {len(generations)} generation(s)...",
-                        total=total_pokemon
+                        f"Fetching {len(all_pokemon_ids)} Pokemon from {len(generations)} generation(s)...",
+                        total=len(all_pokemon_ids)
                     )
 
-                    fetched_count = 0
-                    for gen in generations:
-                        with get_pokemon_api_client() as client:
-                            gen_pokemon = client.get_pokemon_by_generation(gen)
-                            pokemon_list.extend(gen_pokemon)
-                            fetched_count += len(gen_pokemon)
-                            self.progress.update_progress(completed=fetched_count)
+                    # Fetch in batches and update progress
+                    pokemon_list = []
+                    batch_size = 20
+
+                    for i in range(0, len(all_pokemon_ids), batch_size):
+                        batch_ids = all_pokemon_ids[i:i + batch_size]
+                        batch_pokemon = await client.get_pokemon_batch(batch_ids)
+                        pokemon_list.extend(batch_pokemon)
+                        self.progress.update_progress(completed=min(i + batch_size, len(all_pokemon_ids)))
 
                     self.progress.stop_progress()
 
