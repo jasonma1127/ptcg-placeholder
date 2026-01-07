@@ -9,7 +9,13 @@ a = Analysis(
     datas=[
         (certifi.where(), 'certifi'),
     ],
-    hiddenimports=['certifi'],
+    hiddenimports=[
+        'certifi',
+        'aiohttp',
+        'asyncio',
+        'aiohttp.client',
+        'aiohttp.connector',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
