@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Union
 from rich.console import Console
+import tomllib
 
 # Import core modules
 from src.api.pokemon_api import get_pokemon_api_client, get_pokemon_batch_async
@@ -20,6 +21,7 @@ from src.card.card_designer import CardDesigner
 from src.pdf.pdf_generator import PDFGenerator
 from src.ui.menu_system import InteractiveSession, ProgressReporter
 from src.ui.input_validator import InputValidator
+from src.ui.welcome import show_welcome_screen, show_first_run_message
 from src.utils.cache_manager import cache_manager
 from src.utils.error_handler import (
     PokemonCardGeneratorError, log_error, display_error
@@ -32,6 +34,17 @@ console = Console()
 validator = InputValidator()
 
 
+def get_version() -> str:
+    """Read version from pyproject.toml."""
+    try:
+        pyproject_path = Path(__file__).parent / "pyproject.toml"
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+            return data["project"]["version"]
+    except Exception:
+        return "2.0.0"  # Fallback version
+
+
 class PokemonCardGenerator:
     """Main application class."""
 
@@ -40,17 +53,20 @@ class PokemonCardGenerator:
         self.progress = ProgressReporter(console)
         self.card_designer = CardDesigner()
         self.pdf_generator = PDFGenerator()
-        self._show_first_run_message()
+        self._show_welcome()
 
-    def _show_first_run_message(self):
-        """Show cache location on first run."""
+    def _show_welcome(self):
+        """Show welcome screen and first-run message."""
+        # Always show the retro welcome screen
+        show_welcome_screen(version=get_version(), console=console)
+
+        # Show cache info on first run
         if cache_manager.is_first_run():
-            console.print("[cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]")
-            console.print("[cyan]Welcome to Pokemon Card Generator![/cyan]")
-            console.print(f"[dim]Cache: {cache_manager.get_cache_location()}[/dim]")
-            console.print(f"[dim]Images: {cache_manager.get_image_cache_location()}[/dim]")
-            console.print("[dim]Cached data will speed up future runs.[/dim]")
-            console.print("[cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]\n")
+            show_first_run_message(
+                cache_location=cache_manager.get_cache_location(),
+                image_location=cache_manager.get_image_cache_location(),
+                console=console
+            )
 
     async def run(self):
         """Main application workflow."""
