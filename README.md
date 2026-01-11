@@ -13,39 +13,40 @@ A tool for Pokemon card collectors to generate placeholder cards for organizing 
 - 📄 A4-optimized PDF output (9 cards per page, 300 DPI)
 - ⚡ Fast async image downloading with caching
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-### Download Executable (Recommended)
+### Prerequisites
 
-1. Go to [Releases](https://github.com/jasonma1127/ptcg-placeholder/releases/latest)
-2. Download for your system:
-   - 🪟 Windows: `pokemon-card-generator-windows.exe` → Double-click to run
-   - 🍎 macOS: `pokemon-card-generator-macos-arm` → See macOS instructions below
-   - 🐧 Linux: `pokemon-card-generator-linux` → Run in terminal with `chmod +x` first
-3. Follow the on-screen prompts to generate cards!
+- Python 3.9 or later
+- [uv](https://github.com/astral-sh/uv) package manager
 
-#### macOS Setup
+### Install uv
 
 ```bash
-cd ~/Downloads
-xattr -d com.apple.quarantine pokemon-card-generator-macos-arm
-chmod +x pokemon-card-generator-macos-arm
-./pokemon-card-generator-macos-arm
-```
-
-**Note:** macOS blocks unsigned apps by default. The `xattr` command removes this block (safe for open source software).
-
-### Run from Source (Developers)
-
-```bash
-# Install uv package manager
+# macOS/Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Clone and run
+# Windows (PowerShell)
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### Install and Run
+
+```bash
+# Clone the repository
 git clone https://github.com/jasonma1127/ptcg-placeholder.git
 cd ptcg-placeholder
+
+# Install dependencies
 uv sync
+
+# Run the application
 uv run main.py
+```
+
+**Quick one-liner:**
+```bash
+git clone https://github.com/jasonma1127/ptcg-placeholder.git && cd ptcg-placeholder && uv sync && uv run main.py
 ```
 
 ## 📖 How to Use

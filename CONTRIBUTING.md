@@ -84,11 +84,21 @@ uv run pytest tests/ -v
 
 ## Release Process
 
-### Automated Release (Recommended)
+### Version Management
 
-The project uses GitHub Actions for automated build and release workflow.
+We follow [Semantic Versioning](https://semver.org/):
 
-#### Steps
+- `MAJOR.MINOR.PATCH` (e.g., `1.2.0`)
+  - **MAJOR**: Incompatible API changes
+  - **MINOR**: Backwards-compatible functionality additions
+  - **PATCH**: Backwards-compatible bug fixes
+
+Examples:
+- `1.0.0` → `1.0.1`: Bug fix
+- `1.0.1` → `1.1.0`: New feature
+- `1.1.0` → `2.0.0`: Breaking change
+
+### Creating a Release
 
 1. **Update version number**
 
@@ -98,11 +108,16 @@ Edit `pyproject.toml`:
 version = "1.2.0"  # Update version number
 ```
 
+Update lock file:
+```bash
+uv lock
+```
+
 2. **Commit changes**
 
 ```bash
-git add pyproject.toml
-git commit -m "Bump version to 1.2.0"
+git add pyproject.toml uv.lock
+git commit -m "chore: bump version to 1.2.0"
 git push
 ```
 
@@ -120,45 +135,10 @@ git push origin v1.2.0
 
 After pushing the tag, GitHub Actions will automatically:
 - ✅ Run all tests
-- 🏗️ Build executables for three platforms (Windows, macOS, Linux)
-- 📦 Create a GitHub Release
-- ⬆️ Upload executables to the Release
+- 📦 Create a GitHub Release with changelog
+- 📝 Generate release notes from git commits
 
-You can monitor the build progress on the GitHub Actions page.
-
-### Manual Trigger (Optional)
-
-To manually trigger a build without creating a release:
-
-1. Go to your GitHub project page
-2. Click the "Actions" tab
-3. Select "Build and Release Executables"
-4. Click "Run workflow"
-
-### Version Numbering Rules
-
-We follow [Semantic Versioning](https://semver.org/):
-
-- `MAJOR.MINOR.PATCH` (e.g., `1.2.0`)
-  - **MAJOR**: Incompatible API changes
-  - **MINOR**: Backwards-compatible functionality additions
-  - **PATCH**: Backwards-compatible bug fixes
-
-Examples:
-- `1.0.0` → `1.0.1`: Bug fix
-- `1.0.1` → `1.1.0`: New feature
-- `1.1.0` → `2.0.0`: Breaking change
-
-### Pre-releases (Beta Testing)
-
-To create a pre-release for testing:
-
-```bash
-git tag v1.0.0-beta.1
-git push origin v1.0.0-beta.1
-```
-
-The workflow will create a pre-release (marked with "Pre-release" label on GitHub).
+You can monitor the workflow on the GitHub Actions page.
 
 ### Rolling Back a Release
 
@@ -274,17 +254,13 @@ uv run pytest tests/ -v
 - **Runs**: All tests in Ubuntu environment
 - **Purpose**: Ensure code quality and prevent regressions
 
-### Build and Release Workflow (`.github/workflows/build-release.yml`)
+### Release Workflow (`.github/workflows/release.yml`)
 
 - **Trigger**: Pushing a tag with `v*` format (e.g., `v1.2.0`)
 - **Workflow**:
   1. **Test Job**: Run all tests
-  2. **Build Job**: Build executables on three platforms (only runs if tests pass)
-  3. **Release Job**: Create GitHub Release and upload executables
-- **Build Platforms**:
-  - Windows (`.exe`)
-  - macOS ARM (Apple Silicon)
-  - Linux
+  2. **Release Job**: Create GitHub Release with auto-generated changelog (only runs if tests pass)
+- **Changelog**: Automatically generated from commit messages using git-cliff
 
 ## FAQ
 
@@ -296,21 +272,9 @@ Check the error message, which usually indicates which test failed and why. You 
 uv run pytest tests/test_card_designer.py::test_create_card_basic -v
 ```
 
-### Q: How do I build the executable locally?
-
-```bash
-# Install PyInstaller
-pip install pyinstaller
-
-# Build
-pyinstaller --onefile --name pokemon-card-generator main.py
-
-# The executable will be in the dist/ directory
-```
-
 ### Q: Do I need to manually update the GitHub Release notes?
 
-No, release notes are automatically generated based on the template in `.github/workflows/build-release.yml`. If you need to modify them, edit the `body` section in that file.
+No, release notes are automatically generated from commit messages using git-cliff. The workflow is defined in `.github/workflows/release.yml`.
 
 ### Q: How do I add a new dependency?
 
@@ -324,33 +288,17 @@ uv add --dev package-name
 
 This will automatically update `pyproject.toml` and `uv.lock`.
 
-### Q: The GitHub Actions build is failing, what should I check?
+### Q: The GitHub Actions workflow is failing, what should I check?
 
-**Build fails on Windows:**
-- Check if all required files exist
-- Verify Python version compatibility
+**Tests fail:**
+- Check the error message in the Actions log
+- Run tests locally: `uv run pytest tests/ -v`
+- Verify all dependencies are installed
 
-**Build fails on macOS:**
-- Usually auto-resolved by GitHub Actions
-- Check if dependencies are compatible with macOS
-
-**Build fails on Linux:**
-- Verify all system dependencies are available
-- Check the error logs in GitHub Actions
-
-**Executable is too large (>100MB):**
-- This is normal! PyInstaller bundles Python + all dependencies
-- Typical size: 50-80MB per executable
-
-### Q: Can I test the release workflow without creating a real release?
-
-Yes, use the manual trigger:
-1. Go to GitHub Actions tab
-2. Select "Build and Release Executables"
-3. Click "Run workflow"
-4. Choose your branch
-
-This will build executables but won't create a release (because no tag was pushed).
+**Release creation fails:**
+- Ensure the tag follows the `v*` format (e.g., `v1.2.0`)
+- Check that tests passed before release step
+- Verify git-cliff configuration in `cliff.toml`
 
 ## Need Help?
 
